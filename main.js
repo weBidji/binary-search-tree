@@ -159,8 +159,99 @@ class Tree {
     }
     return null;
   }
+
+  levelOrder(callback) {
+    if (typeof callback !== "function") {
+      throw new Error("Callback required");
+    }
+    if (this.root === null) {
+      throw new Error("Tree is empty.");
+    }
+
+    let queue = [];
+    queue.push(this.root);
+
+    while (queue.length > 0) {
+      let current = queue.shift();
+      callback(current);
+
+      if (current.left !== null) {
+        queue.push(current.left);
+      }
+      if (current.right !== null) {
+        queue.push(current.right);
+      }
+    }
+  }
+
+  // root, left, right
+  preOrder(callback) {
+    if (typeof callback !== "function") {
+        throw new Error("Callback required");
+    }
+    if (this.root === null) {
+        throw new Error("Tree is empty.");
+    }
+
+    const traverse = (node) => {
+        if (node === null) {
+            return; 
+        }
+        
+        callback(node); 
+        traverse(node.left); 
+        traverse(node.right); 
+    };
+
+    traverse(this.root); 
+}
+  //left, root, right
+  inOrder(callback) {
+    if (typeof callback !== "function") {
+        throw new Error("Callback required");
+    }
+    if (this.root === null) {
+        throw new Error("Tree is empty.");
+    }
+
+    const traverse = (node) => {
+        if (node === null) {
+            return;
+        }
+        
+        traverse(node.left); 
+        callback(node); 
+        traverse(node.right); 
+    };
+
+    traverse(this.root); 
+}
+  
+
+  //left, right, root
+  postOrder(callback) {
+    if (typeof callback !== "function") {
+        throw new Error("Callback required");
+    }
+    if (this.root === null) {
+        throw new Error("Tree is empty.");
+    }
+
+    const traverse = (node) => {
+        if (node === null) {
+            return; 
+        }
+        
+        traverse(node.left); 
+        traverse(node.right); 
+        callback(node); 
+    };
+
+    traverse(this.root); 
 }
 
+
+}
 function buildTree(array, start = 0, end = array.length - 1) {
   if (start > end) {
     return null;
@@ -190,3 +281,9 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
 // Testing
 const myTree = new Tree([5, 3, 8, 1, 4, 7, 9, 243, 68, 78, 19]);
 prettyPrint(myTree.root);
+
+function log(item) {
+  console.log(item.data);
+}
+
+myTree.levelOrder(log);
