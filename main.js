@@ -20,13 +20,20 @@ class Tree {
     let current = this.root;
     while (true) {
       if (value > current.data) {
-        current.right === null
-          ? (current.right = new Node(value))
-          : current.right.insert(value);
+        if (current.right === null) {
+          current.right = new Node(value);
+          break;
+        }
+        current = current.right;
       } else if (value < current.data) {
-        current.left === null
-          ? (current.left = new Node(value))
-          : current.left.insert(value);
+        if (current.left === null) {
+          current.left = new Node(value);
+          break;
+        }
+        current = current.left;
+      } else {
+        // Value already exists
+        break;
       }
     }
   }
@@ -36,11 +43,12 @@ class Tree {
       return;
     }
 
-    let previous;
+    let previous = null;
     let current = this.root;
+
     while (current !== null) {
       if (current.data === value) {
-        handleDeletion(current, value);
+        this.handleDeletion(current, previous);
         return;
       } else if (value > current.data) {
         previous = current;
@@ -50,22 +58,106 @@ class Tree {
         current = current.left;
       }
     }
+  }
 
-    function handleDeletion(node, value) {
+  handleDeletion(node, previous) {
+    // If the node to be deleted is the root
+    if (node === this.root) {
+      // Root has no children
+      if (node.left === null && node.right === null) {
+        this.root = null;
+        return;
+      }
+      // Root has one child
+      if (node.left === null) {
+        this.root = node.right;
+      } else if (node.right === null) {
+        this.root = node.left;
+      }
+      // Root has two children
+      else {
+        let temp = node.right;
+        let parent = null;
+
+        while (temp.left !== null) {
+          parent = temp;
+          temp = temp.left;
+        }
+
+        node.data = temp.data;
+
+        if (parent !== null) {
+          parent.left === temp
+            ? (parent.left = temp.right)
+            : (parent.right = temp.right);
+        } else {
+          node.right = temp.right;
+        }
+      }
+    }
+    // If the node to be deleted is not the root
+    else {
+      // Node to delete has no children
       if (node.left === null && node.right === null) {
         value > previous.data
           ? (previous.right = null)
           : (previous.left = null);
-      } else if (node.left !== null && node.right === null) {
-        previous.left = node.left;
+        return;
+      }
+
+      // Node to delete has one child
+      else if (node.left !== null && node.right === null) {
+        value > previous.data
+          ? (previous.right = node.left)
+          : (previous.left = node.left);
+        return;
       } else if (node.left === null && node.right !== null) {
-        previous.right = node.right;
-      } else if (node.left !== null && node.right !== null) {
-        value > node.left.data
-          ? (previous.left = node.left)
-          : (previous.right = node.right);
+        value > previous.data
+          ? (previous.right = node.right)
+          : (previous.left = node.right);
+        return;
+      }
+
+      // Node to delete has two children
+      else if (node.left !== null && node.right !== null) {
+        let temp = node.right;
+        let parent = null;
+
+        // Find in-order successor
+        while (temp.left !== null) {
+          parent = temp;
+          temp = temp.left;
+        }
+
+        // Replace node's data with the successor's data
+        node.data = temp.data;
+
+        // If successor has a right child, link it to its parent
+        if (parent !== null) {
+          parent.left === temp
+            ? (parent.left = temp.right)
+            : (parent.right = temp.right);
+        } else {
+          node.right = temp.right;
+        }
       }
     }
+  }
+
+  find(value) {
+    if (this.root === null) {
+      return null;
+    }
+
+    let current = this.root;
+
+    while (current !== null) {
+      if (value === current.data) {
+        return current;
+      }
+      current = value > current.data ? current.right : current.left;
+    }
+    return null;
   }
 }
 
@@ -95,6 +187,6 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
+// Testing
 const myTree = new Tree([5, 3, 8, 1, 4, 7, 9, 243, 68, 78, 19]);
-
 prettyPrint(myTree.root);
