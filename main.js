@@ -187,71 +187,136 @@ class Tree {
   // root, left, right
   preOrder(callback) {
     if (typeof callback !== "function") {
-        throw new Error("Callback required");
+      throw new Error("Callback required");
     }
     if (this.root === null) {
-        throw new Error("Tree is empty.");
+      throw new Error("Tree is empty.");
     }
 
     const traverse = (node) => {
-        if (node === null) {
-            return; 
-        }
-        
-        callback(node); 
-        traverse(node.left); 
-        traverse(node.right); 
+      if (node === null) {
+        return;
+      }
+
+      callback(node);
+      traverse(node.left);
+      traverse(node.right);
     };
 
-    traverse(this.root); 
-}
+    traverse(this.root);
+  }
   //left, root, right
   inOrder(callback) {
     if (typeof callback !== "function") {
-        throw new Error("Callback required");
+      throw new Error("Callback required");
     }
     if (this.root === null) {
-        throw new Error("Tree is empty.");
+      throw new Error("Tree is empty.");
     }
 
     const traverse = (node) => {
-        if (node === null) {
-            return;
-        }
-        
-        traverse(node.left); 
-        callback(node); 
-        traverse(node.right); 
+      if (node === null) {
+        return;
+      }
+
+      traverse(node.left);
+      callback(node);
+      traverse(node.right);
     };
 
-    traverse(this.root); 
-}
-  
+    traverse(this.root);
+  }
 
   //left, right, root
   postOrder(callback) {
     if (typeof callback !== "function") {
-        throw new Error("Callback required");
+      throw new Error("Callback required");
     }
     if (this.root === null) {
-        throw new Error("Tree is empty.");
+      throw new Error("Tree is empty.");
     }
 
     const traverse = (node) => {
-        if (node === null) {
-            return; 
-        }
-        
-        traverse(node.left); 
-        traverse(node.right); 
-        callback(node); 
+      if (node === null) {
+        return;
+      }
+
+      traverse(node.left);
+      traverse(node.right);
+      callback(node);
     };
 
-    traverse(this.root); 
+    traverse(this.root);
+  }
+
+  height(node) {
+    if (node === null) {
+      return -1;
+    }
+
+    let leftHeight = this.height(node.left);
+    let rightHeight = this.height(node.right);
+
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
+
+  depth(node) {
+    // Depth is defined as the number of edges in the path from a given node to the tree’s root node.
+    if (this.root === null) {
+      throw new Error("Tree is empty");
+    }
+    let current = this.root;
+    let counter = 0;
+    while (current !== null) {
+      if (node.data === current.data) {
+        return counter;
+      }
+      if (current.data < node.data) {
+        current = current.right;
+      } else {
+        current = current.left;
+      }
+      counter++;
+    }
+    throw new Error("Node not found in the tree");
+  }
+
+  isBalanced() {
+    if (this.root === null) {
+      return true;
+    }
+
+    const checkBalance = (node) => {
+      if (node === null) {
+        return 0;
+      }
+
+      const leftHeight = this.height(node.left);
+      const rightHeight = this.height(node.right);
+
+      if (Math.abs(leftHeight - rightHeight) > 1) {
+        return false;
+      }
+
+      return Math.max(leftHeight, rightHeight) + 1;
+    };
+
+    return checkBalance(this.root) !== false;
+  }
+  reBalance() {
+    if (this.isBalanced()) {
+      return;
+    }
+    function addToArr(node) {
+      newArr.push(node.data);
+    }
+
+    let newArr = [];
+    this.preOrder(addToArr);
+    this.root = buildTree(newArr);
+  }
 }
 
-
-}
 function buildTree(array, start = 0, end = array.length - 1) {
   if (start > end) {
     return null;
@@ -278,12 +343,4 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
-// Testing
-const myTree = new Tree([5, 3, 8, 1, 4, 7, 9, 243, 68, 78, 19]);
-prettyPrint(myTree.root);
 
-function log(item) {
-  console.log(item.data);
-}
-
-myTree.levelOrder(log);
